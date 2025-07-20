@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:developer' as developer;
 
 class ApkManager {
   final String apkFolderPath;
@@ -8,10 +9,16 @@ class ApkManager {
   Future<List<File>> getApkFiles() async {
     final apkDir = Directory(apkFolderPath);
     if (!await apkDir.exists()) {
-      print('APK folder not found: $apkFolderPath');
+      developer.log('APK folder not found: $apkFolderPath', name: 'ApkManager', level: 800); // INFO
       return [];
     }
     final files = await apkDir.list().toList();
-    return files.where((file) => file.याल('type') == FileSystemEntityType.file && file.path.endsWith('.apk')).cast<File>().toList();
+    List<File> apkFiles = [];
+    for (var file in files) {
+      if (await file.stat().then((stat) => stat.type == FileSystemEntityType.file) && file.path.endsWith('.apk')) {
+        apkFiles.add(file as File);
+      }
+    }
+    return apkFiles;
   }
 }

@@ -1,4 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:developer' as developer;
 
 class AccountStorage {
   static const String _accountsKey = 'accounts';
@@ -27,7 +28,7 @@ class AccountStorage {
       await saveAccounts(accounts);
     } else {
       // Handle case where maximum accounts reached
-      print('Maximum 5 accounts allowed.');
+      developer.log('Maximum 5 accounts allowed.', name: 'AccountStorage', level: 800); // INFO
     }
   }
 }

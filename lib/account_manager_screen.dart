@@ -7,10 +7,10 @@ class AccountManagerScreen extends StatefulWidget {
   const AccountManagerScreen({super.key});
 
   @override
-  _AccountManagerScreenState createState() => _AccountManagerScreenState();
+  AccountManagerScreenState createState() => AccountManagerScreenState();
 }
 
-class _AccountManagerScreenState extends State<AccountManagerScreen> {
+class AccountManagerScreenState extends State<AccountManagerScreen> {
   final AccountStorage _accountStorage = AccountStorage();
   List<Map<String, String>> _accounts = [];
   final TextEditingController _usernameController = TextEditingController();
