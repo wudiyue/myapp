@@ -2,33 +2,32 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:developer' as developer;
 
 class AccountStorage {
-  static const String _accountsKey = 'accounts';
-
-  Future<List<Map<String, String>>> getAccounts() async {
-    final prefs = await SharedPreferences.getInstance();
-    final accountsJson = prefs.getStringList(_accountsKey) ?? [];
-    return accountsJson.map((accountString) {
-      final parts = accountString.split(':');
-      return {'username': parts[0], 'password': parts[1]};
-    }).toList();
-  }
+  static const String _accountsKey = 'user_accounts';
 
   Future<void> saveAccounts(List<Map<String, String>> accounts) async {
-    final prefs = await SharedPreferences.getInstance();
-    final accountsJson = accounts.map((account) {
-      return '${account['username']}:${account['password']}';
-    }).toList();
-    await prefs.setStringList(_accountsKey, accountsJson);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final accountsJson = accounts.map((account) => '${account["email"]},${account["password"]}').toList();
+      await prefs.setStringList(_accountsKey, accountsJson);
+      developer.log('Accounts saved successfully.', name: 'AccountStorage');
+    } catch (e) {
+      developer.log('Error saving accounts: $e', name: 'AccountStorage', level: 1000); // SEVERE
+    }
   }
 
-  Future<void> addAccount(String username, String password) async {
-    final accounts = await getAccounts();
-    if (accounts.length < 5) {
-      accounts.add({'username': username, 'password': password});
-      await saveAccounts(accounts);
-    } else {
-      // Handle case where maximum accounts reached
-      developer.log('Maximum 5 accounts allowed.', name: 'AccountStorage', level: 800); // INFO
+  Future<List<Map<String, String>>> loadAccounts() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final accountsJson = prefs.getStringList(_accountsKey) ?? [];
+      final accounts = accountsJson.map((accountJson) {
+        final parts = accountJson.split(',');
+        return {'email': parts[0], 'password': parts[1]};
+      }).toList();
+      developer.log('Accounts loaded successfully.', name: 'AccountStorage');
+      return accounts;
+    } catch (e) {
+      developer.log('Error loading accounts: $e', name: 'AccountStorage', level: 1000); // SEVERE
+      return [];
     }
   }
 }

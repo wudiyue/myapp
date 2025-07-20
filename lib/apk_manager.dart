@@ -1,24 +1,19 @@
 import 'dart:io';
 import 'dart:developer' as developer;
 
-class ApkManager {
-  final String apkFolderPath;
-
-  ApkManager(this.apkFolderPath);
-
-  Future<List<File>> getApkFiles() async {
-    final apkDir = Directory(apkFolderPath);
-    if (!await apkDir.exists()) {
-      developer.log('APK folder not found: $apkFolderPath', name: 'ApkManager', level: 800); // INFO
+Future<List<String>> getApkFilePaths(String directoryPath) async {
+  try {
+    final directory = Directory(directoryPath);
+    if (!await directory.exists()) {
+      developer.log('Directory does not exist: $directoryPath', name: 'ApkManager', level: 900); // WARNING
       return [];
     }
-    final files = await apkDir.list().toList();
-    List<File> apkFiles = [];
-    for (var file in files) {
-      if (await file.stat().then((stat) => stat.type == FileSystemEntityType.file) && file.path.endsWith('.apk')) {
-        apkFiles.add(file as File);
-      }
-    }
-    return apkFiles;
+
+    final files = await directory.list().where((file) => file.path.endsWith('.apk')).toList();
+    developer.log('Found ${files.length} APK files in $directoryPath', name: 'ApkManager');
+    return files.map((file) => file.path).toList();
+  } catch (e) {
+    developer.log('Error reading APK files: $e', name: 'ApkManager', level: 1000); // SEVERE
+    return [];
   }
 }
